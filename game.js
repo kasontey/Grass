@@ -36,23 +36,38 @@
 	};
 	var theherd = {};
 	var score = 0;
-	var keysDown={};//keyboard controls
+	var keysDown = {};//keyboard controls
 	var buffer = 220;
-	var i=1;
+	var i = 1;
 	var isPaused = false;
 	var input = 0;
 	var gameOver = false;
+	var fakeNumPad = { // keyboard numberpad, k is 5
+		79: 9, // o
+		73: 8, // i
+		85: 7, // u
+		76: 6, // l
+		75: 5, // k
+		74: 4, // j
+		190: 3, // .
+		188: 2, // ,
+		77: 1, // m
+		32: 0 // spacebar
+	};
 
 //event listeners >> takes user input (numbers) and checks for answers
 	addEventListener("keydown", function (e) {
 		keysDown[e.keyCode] = true;
+		if(e.keyCode===32){
+			e.preventDefault();
+		}
 	}, false);
 
 	addEventListener("keyup", function (e) {
-		//console.log(e.keyCode);
+		console.log(e.keyCode);
 		delete keysDown[e.keyCode];
 
-		if(!gameOver && e.keyCode==27){ // Player pushes Esc >> Toggles isPaused
+		if(!gameOver && e.keyCode===27){ // Player pushes Esc >> Toggles isPaused
 			if(!isPaused){
 				isPaused = true;
 			} else {
@@ -62,17 +77,19 @@
 			gameOver = false;
 		}
 
-
+		
+		var digit = "";
 		for(var x = 96; x <= 105; x++){ // Player pushes number >> Digit is concatenated to input
 			if(x == e.keyCode){
-				var digit = x - 96;
-				input = +("" + input + digit);
+				digit = x - 96;
+			} else if(x - 48 == e.keyCode){
+				digit = x - 96;
 			}
-			else if(x - 48 == e.keyCode){
-				var digit = x - 96;
-				input = +("" + input + digit);
-			}	
 		}
+		if(e.keyCode in fakeNumPad){
+			digit = fakeNumPad[e.keyCode];
+		}
+		input = +("" + input + digit);
 
 		if(input > 999){
 			input = 0;
@@ -275,7 +292,7 @@ var generate = function() {
 			ctx.textAlign = "center";
 			ctx.textBaseline = "middle";
 			ctx.fillStyle = "rgb(250, 250, 250)";
-			ctx.fillText("Game Over. Press [Enter] to play again", canvas.width/2, canvas.height/2); // game over text
+			ctx.fillText("Game Over. Press [Enter] to play again.", canvas.width/2, canvas.height/2); // game over text
 		}
 
 	};
