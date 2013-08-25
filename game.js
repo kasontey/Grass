@@ -1,18 +1,3 @@
-/*
-	TODO List:
-		power ups
-		collision control
-		levels?
-		lives
-		storyline
-		improve / add graphics (dynamic equation boxes, score, input boxes, etc)
-		tigers throw stuff
-		collect bamboo
-		2nd player / AI
-		fix input sys
-		multiplier
-		game end screen
-*/
 //create the canvas
 	var canvas = document.getElementById("canvas");
 	var ctx = canvas.getContext("2d");
