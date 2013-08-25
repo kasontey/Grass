@@ -41,6 +41,7 @@
 	var i=1;
 	var isPaused = false;
 	var input = 0;
+	var gameOver = false;
 
 //event listeners >> takes user input (numbers) and checks for answers
 	addEventListener("keydown", function (e) {
@@ -51,13 +52,16 @@
 		//console.log(e.keyCode);
 		delete keysDown[e.keyCode];
 
-		if(e.keyCode==27){ // Player pushes Esc >> Toggles isPaused
+		if(!gameOver && e.keyCode==27){ // Player pushes Esc >> Toggles isPaused
 			if(!isPaused){
 				isPaused = true;
 			} else {
 				isPaused = false;
 			}
+		} else if(gameOver && e.keyCode===13){
+			gameOver = false;
 		}
+
 
 		for(var x = 96; x <= 105; x++){ // Player pushes number >> Digit is concatenated to input
 			if(x == e.keyCode){
@@ -89,7 +93,7 @@
 
 	}, false);
 
-//reset >> deletes theherd, keysDown elements, resets score
+//reset() >> deletes theherd, keysDown elements, resets score, set gameOver to true
 	var reset = function () {
 		for(monster in theherd){
 			delete theherd[monster];
@@ -97,8 +101,8 @@
 		for(e in keysDown){
 			delete keysDown[e];
 		}
-		//alert("end of game, you have been eaten! And you demolished " +score + " tigers!");
 		score = 0;
+		gameOver = true;
 	};
 
 var generate = function() {
@@ -130,7 +134,7 @@ var generate = function() {
 	}
 };
 
-//update game objects
+//update() update game objects
 	var update = function (modifier) {
 		// player movement
 			if (87 in keysDown) { // Player holding up
@@ -213,7 +217,7 @@ var generate = function() {
 			}
 	};
 
-//draws everything
+//render() draws everything
 	var render = function () {
 		
 		// draw characters
@@ -262,7 +266,16 @@ var generate = function() {
 			ctx.textAlign = "center";
 			ctx.textBaseline = "middle";
 			ctx.fillStyle = "rgb(250, 250, 250)";
-			ctx.fillText("Pause. Press Esc to resume.", canvas.width/2, canvas.height/2); //pause menu text.
+			ctx.fillText("Pause. Press [Esc] to resume.", canvas.width/2, canvas.height/2); // pause menu text
+		} else if (gameOver){
+			ctx.fillStyle="rgba(20,20,35,.8)";
+			ctx.fillRect(160,94,704,452); // game over 
+			
+			ctx.font = "35px Helvetica";
+			ctx.textAlign = "center";
+			ctx.textBaseline = "middle";
+			ctx.fillStyle = "rgb(250, 250, 250)";
+			ctx.fillText("Game Over. Press [Enter] to play again", canvas.width/2, canvas.height/2); // game over text
 		}
 
 	};
@@ -271,7 +284,7 @@ var main = function(){
 	var now = Date.now();
 	var delta = now - then;
 
-	if(! isPaused){
+	if(! isPaused && ! gameOver){
 		if( (now - lastgen) / 1000 > 3 ){ // generates tiger every 3 seconds
 			generate();
 			lastgen = now;
