@@ -77,7 +77,10 @@
 			gameOver = false;
 		}
 
-		
+		if(isPaused){
+			return;
+		}
+
 		var digit = "";
 		for(var x = 96; x <= 105; x++){ // Player pushes number >> Digit is concatenated to input
 			if(x == e.keyCode){
@@ -91,8 +94,12 @@
 		}
 		input = +("" + input + digit);
 
-		if(input > 999){
+		if(input > 999 || e.keyCode === 186){ // semicolon to clear
 			input = 0;
+		}
+
+		if(e.keyCode === 8){ // backspace to get rid of last digit
+			input = Math.floor(input/10);
 		}
 
 		//checks monsters' answers with input
@@ -123,6 +130,11 @@
 	};
 
 var generate = function() {
+	// makes "older" monsters move faster
+		for(monster in theherd){ 
+			theherd[monster].speed += 5;
+		}
+
 	// initialize monster
 		var name = "Monster" + i;
 		theherd[name] = { 
@@ -144,11 +156,7 @@ var generate = function() {
 		theherd[name].b = 1 + Math.floor(Math.random() * 12 );
 		theherd[name].ans = theherd[name].a * theherd[name].b;
 
-	i++;
-
-	for(monster in theherd){ // makes "older" monsters move faster
-		theherd[monster].speed += 5;
-	}
+	i++;	
 };
 
 //update() update game objects
@@ -257,23 +265,23 @@ var generate = function() {
 					for (monster in theherd){ // draws equation
 						ctx.font = "24px Helvetica";
 						ctx.fillStyle= "rgba(14,34,200,.7)";
-						ctx.fillRect(theherd[monster].x,theherd[monster].y-25, 64,26);
+						ctx.fillRect(theherd[monster].x,theherd[monster].y-25,64,26);
 						ctx.fillStyle="rgb(250,250,250)";
-						ctx.fillText(theherd[monster].a + 'x' + theherd[monster].b, theherd[monster].x, theherd[monster].y-25);
+						ctx.fillText(theherd[monster].a + 'x' + theherd[monster].b, theherd[monster].x, theherd[monster].y-12);
 					}
 				}
 			}
 		
 		ctx.fillStyle= "rgba(14,34,200,.7)";
-		ctx.fillRect(640,28,50,30); // score box
-		ctx.fillRect(290,28,120,35); // input box
+		ctx.fillRect(640,0,60,32); // input box
+		ctx.fillRect(290,0,120,32); // score box
 
 		ctx.fillStyle = "rgb(250, 250, 250)";
 		ctx.font = "24px Helvetica";
 		ctx.textAlign = "left";
-		ctx.textBaseline = "top";
-		ctx.fillText("Score: " + score, 300, 32); // score
-		ctx.fillText(input,650,32); // input
+		ctx.textBaseline = "middle";
+		ctx.fillText("Score: " + score, 300, 16); // score
+		ctx.fillText(input,650,16); // input
 
 		if(isPaused){
 			ctx.fillStyle="rgba(20,20,35,.8)";
