@@ -54,6 +54,7 @@
 		77: 1, // m
 		32: 0 // spacebar
 	};
+	var widthChange = 0; // score box width change
 
 //event listeners >> takes user input (numbers) and checks for answers
 	addEventListener("keydown", function (e) {
@@ -139,8 +140,9 @@ var generate = function() {
 		var name = "Monster" + i;
 		theherd[name] = { 
 			speed: 5 + score,
-			x : 32 + (Math.random() * (canvas.width - 64)),
-			y : 32 + (Math.random() * (canvas.height - 64))
+			x : 32 + (Math.random() * (canvas.width - 64)), // starting pos
+			y : 32 + (Math.random() * (canvas.height - 64)),
+			width : 42 // width of hovering box. 2 + 13 + 12 + 13 + 2. 2 margin, 13 for digit, 12 for 'x'
 		};
 
 	// makes sure monster is outside buffer
@@ -155,6 +157,13 @@ var generate = function() {
 		theherd[name].a = 1 + Math.floor(Math.random() * 12 );
 		theherd[name].b = 1 + Math.floor(Math.random() * 12 );
 		theherd[name].ans = theherd[name].a * theherd[name].b;
+
+	if(theherd[name].a >= 10){
+		theherd[name].width+=13;
+	}
+	if(theherd[name].b >= 10){
+		theherd[name].width+=13;
+	}
 
 	i++;	
 };
@@ -195,35 +204,8 @@ var generate = function() {
 			theherd[monster].x += ( (hero.x-theherd[monster].x) / Math.abs(hero.x-theherd[monster].x) ) * theherd[monster].speed * modifier;
 			theherd[monster].y += ( (hero.y-theherd[monster].y) / Math.abs(hero.y-theherd[monster].y) ) * theherd[monster].speed * modifier;
 			
-
-			//collision for monsters, much revision needed.
-			for(brother in theherd){
+			//colisions
 				
-				blueboxwidth=64;
-				blueboxheight=26;
-				if(brother!=monster){
-					if(theherd[monster].y<theherd[brother].y+26 && theherd[monster].y+26 >theherd[brother].y){
-						
-						if (theherd[monster].x<theherd[brother].x+64 && theherd[monster].x>theherd[brother].x) {
-							console.log("stuck");
-							console.log(monster);
-							theherd[monster].x = theherd[brother].x+64;
-						}
-
-					}
-					if(theherd[monster].x+64>theherd[brother].x && theherd[monster].x <theherd[brother].x+64){
-						
-						if (theherd[monster].y<theherd[brother].y+26 && theherd[monster].y+26>theherd[brother].y) {
-							console.log("stuck");
-							console.log(monster);
-							theherd[monster].y = theherd[brother].y+26;
-						}
-
-					}
-
-					
-				}
-			}
 		}
 
 		// Is hero touching a monster?
@@ -243,6 +225,7 @@ var generate = function() {
 	};
 
 //render() draws everything
+	
 	var render = function () {
 		
 		// draw characters
@@ -265,23 +248,27 @@ var generate = function() {
 					for (monster in theherd){ // draws equation
 						ctx.font = "24px Helvetica";
 						ctx.fillStyle= "rgba(14,34,200,.7)";
-						ctx.fillRect(theherd[monster].x,theherd[monster].y-25,64,26);
+						ctx.fillRect(theherd[monster].x+16-theherd[monster].width/2,theherd[monster].y-26,theherd[monster].width,26);//goes to center of box, minus width/2
 						ctx.fillStyle="rgb(250,250,250)";
-						ctx.fillText(theherd[monster].a + 'x' + theherd[monster].b, theherd[monster].x, theherd[monster].y-12);
+						ctx.textAlign = "center";
+						ctx.fillText(theherd[monster].a + 'x' + theherd[monster].b, theherd[monster].x+16, theherd[monster].y-13);
 					}
 				}
 			}
 		
 		ctx.fillStyle= "rgba(14,34,200,.7)";
 		ctx.fillRect(640,0,60,32); // input box
-		ctx.fillRect(290,0,120,32); // score box
+		widthChange = ((score+"").length-1)*13;
+		ctx.fillRect(290-widthChange/2,0,110+widthChange,32); // score box
+
 
 		ctx.fillStyle = "rgb(250, 250, 250)";
 		ctx.font = "24px Helvetica";
-		ctx.textAlign = "left";
 		ctx.textBaseline = "middle";
-		ctx.fillText("Score: " + score, 300, 16); // score
-		ctx.fillText(input,650,16); // input
+		ctx.textAlign = "right";
+		ctx.fillText(input, 690, 16); // input
+		ctx.textAlign = "center";
+		ctx.fillText("Score: " + score, 345, 16); // score
 
 		if(isPaused){
 			ctx.fillStyle="rgba(20,20,35,.8)";
@@ -310,7 +297,7 @@ var main = function(){
 	var delta = now - then;
 
 	if(! isPaused && ! gameOver){
-		if( (now - lastgen) / 1000 > 3 ){ // generates tiger every 3 seconds
+		if( (now - lastgen) / 1000 > 1 ){ // generates tiger every 3 seconds
 			generate();
 			lastgen = now;
 		}
@@ -326,4 +313,4 @@ hero.y = canvas.height / 2;
 generate();
 var then = Date.now();
 var lastgen = then;
-setInterval(main, 1); //execute as fast as possible
+setInterval(main, 10); //execute as fast as possible
