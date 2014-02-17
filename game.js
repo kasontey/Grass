@@ -12,7 +12,7 @@
 	bgImage.onload = function (){
 		bgReady = true;
 	};
-	bgImage.src = "biggy2.png";
+	bgImage.src = "background.png";
 
 	//panda and hero
 	var phReady=false;
