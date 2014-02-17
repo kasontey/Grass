@@ -38,9 +38,9 @@
 	var score = 0;
 	var keysDown = {};//keyboard controls
 	var buffer = 220;
-	var i = 1;
+	var i = 1; //this is used as a counter for the monsters
 	var isPaused = false;
-	var input = 0;
+	var input = 0; //whatever the user has typed
 	var gameOver = false;
 	var fakeNumPad = { // keyboard numberpad, k is 5
 		79: 9, // o
@@ -69,12 +69,12 @@
 		delete keysDown[e.keyCode];
 
 		if(!gameOver && e.keyCode===27){ // Player pushes Esc >> Toggles isPaused
-			if(!isPaused){
-				isPaused = true;
-			} else {
-				isPaused = false;
-			}
-		} else if(gameOver && e.keyCode===13){
+
+			isPaused=!isPaused ? true : false;
+
+		} 
+		//checks if the player presses enter to restart game
+		else if(gameOver && e.keyCode===13){
 			gameOver = false;
 		}
 
@@ -82,6 +82,7 @@
 			return;
 		}
 
+		//the following chunk looks to see what number has been typed in
 		var digit = "";
 		for(var x = 96; x <= 105; x++){ // Player pushes number >> Digit is concatenated to input
 			if(x == e.keyCode){
@@ -93,8 +94,10 @@
 		if(e.keyCode in fakeNumPad){
 			digit = fakeNumPad[e.keyCode];
 		}
+		
 		input = +("" + input + digit);
 
+		//to clear the input
 		if(input > 999 || e.keyCode === 186){ // semicolon to clear
 			input = 0;
 		}
@@ -104,17 +107,17 @@
 		}
 
 		//checks monsters' answers with input
-			var found = false;
-			for(monster in theherd){
-				if(theherd[monster].ans==input){
-					delete theherd[monster];
-					found = true;
-					score++;
-				}
+		var found = false;
+		for(monster in theherd){
+			if(theherd[monster].ans==input){
+				delete theherd[monster];
+				found = true;
+				score++;
 			}
-			if(found){
-				input = 0;
-			}
+		}
+		if(found){
+			input = 0;
+		}
 
 	}, false);
 
@@ -204,8 +207,7 @@ var generate = function() {
 			theherd[monster].x += ( (hero.x-theherd[monster].x) / Math.abs(hero.x-theherd[monster].x) ) * theherd[monster].speed * modifier;
 			theherd[monster].y += ( (hero.y-theherd[monster].y) / Math.abs(hero.y-theherd[monster].y) ) * theherd[monster].speed * modifier;
 			
-			//colisions
-				
+			
 		}
 
 		// Is hero touching a monster?
@@ -244,7 +246,7 @@ var generate = function() {
 				for(monster in theherd){
 					ctx.drawImage(ghImage, theherd[monster].x, theherd[monster].y);
 				}
-				if(! isPaused){
+				if(!isPaused){
 					for (monster in theherd){ // draws equation
 						ctx.font = "24px Helvetica";
 						ctx.fillStyle= "rgba(14,34,200,.7)";
@@ -297,7 +299,9 @@ var main = function(){
 	var delta = now - then;
 
 	if(! isPaused && ! gameOver){
-		if( (now - lastgen) / 1000 > 1 ){ // generates tiger every 3 seconds
+		//this sets the difference between each tiger spawn
+		var interval = 5;
+		if( (now - lastgen) / 1000 > interval){ 
 			generate();
 			lastgen = now;
 		}
